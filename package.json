@@ -1,0 +1,18 @@
+{
+  "name": "wolla_mockup",
+  "version": "0.0.1",
+  "description": "Wolla Mockup",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.14.2",
+    "express": "4.13.3",
+    "request": "^2.79.0"
+  },
+  "engines": {
+    "node": "0.12.7"
+  },
+  "license": "MIT"
+}
