@@ -1,5 +1,8 @@
 var express = require('express');
 var request = require('request');
+var fs = require('fs');
+var log = fs.createWriteStream('./public/results.txt', {flags: 'a'});
+log.writeLine = (s) => log.write(s + '\n');
 var app = express();
 var bodyParser = require('body-parser');
 
@@ -7,6 +10,11 @@ app.set('port', (process.env.PORT || 5000));
 
 app.use(bodyParser.json());
 app.use(express.static(__dirname + '/public'));
+
+app.get('/write', (req, res) => {
+  log.writeLine('prueba');
+  res.send();
+});
 
 app.get('/', (req, res) => {
   var q = req.query.q;
@@ -25,4 +33,5 @@ app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
 });
 
+process.on('exit', () => log.end());
 
