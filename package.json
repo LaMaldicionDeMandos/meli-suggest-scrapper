@@ -13,6 +13,7 @@
     "express": "4.13.3",
     "lodash": "^4.17.4",
     "readline-stream": "^1.0.1",
+    "request": "^2.79.0",
     "request-promise": "^4.1.1",
     "shortid": "^2.2.6"
   },
