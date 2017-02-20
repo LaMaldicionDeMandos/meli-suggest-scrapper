@@ -441,16 +441,11 @@ app.get('/query2', (req, res) => {
           console.log(`items luego de categories: ${JSON.stringify(items.map((item) => item.title))}`);
           return items;
         })
-        .then((items) => {
+        .filter((item) => {
           var phrase = normalizeAll(query).split(' ');
-          //Elimino las palabras que hacen que el filtro colapse
-          phrase = phrase.filter((word) => items.some((item) => normalizeAll(item.title).indexOf(word) >= 0));
-          return items.filter((item) => {
-            var c = _.clone(phrase);
-            var words = getItemCategoryWords(item.categories);
-            c = c.filter((word) => !words.includes(word));
-            return c.every((word) => normalizeAll(item.title).indexOf(word) >= 0);
-          })
+          var words = getItemCategoryWords(item.categories);
+          phrase = phrase.filter((word) => !words.includes(word))
+          return phrase.every((word) => normalizeAll(item.title).indexOf(word) >= 0);
         })
         .then((items) => {
           console.log(`items luego de filtro: ${JSON.stringify(items.map((item) => item.title.toLowerCase()))}`);
@@ -458,29 +453,6 @@ app.get('/query2', (req, res) => {
         })
         .each((item) => matches.push(item.title))
         .thenReturn(matches);
-    })
-    .then((matches) => res.send(matches));
-});
-
-
-app.get('/query', (req, res) => {
-  var query = req.query.q;
-  request(`https://api.mercadolibre.com/sites/MLA/category_predictor/predict?title=${webiseQuery(query)}`)
-    .then(JSON.parse)
-    .then((meli) => {
-      console.log('Processing query: ' + query);
-      var categories = meli.path_from_root
-        .filter((path) => path.prediction_probability > 0.5 || filterCategory(query, path.name));
-      return categories;
-    })
-    .then((categories) => {
-      var matches = [];
-      items.forEach((item) => {
-        if (categories.every((category) => item.categories.some((cat) => cat.id === category.id))) {
-          matches.push(item.title, item.categories.map((c) => c.name));
-        }
-      });
-      return {query: query, categories: categories.map((c) => c.name), matches: matches};
     })
     .then((matches) => res.send(matches));
 });
