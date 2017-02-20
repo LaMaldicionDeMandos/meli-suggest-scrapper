@@ -280,7 +280,7 @@ var changecharTo = (word, from, to) => {
   return word.replace(from, to, 'g');
 }
 
-var removeTild = (word) => {
+var removeTildAndPunctuations = (word) => {
   return changecharTo(
     changecharTo(
       changecharTo(
@@ -289,11 +289,11 @@ var removeTild = (word) => {
           'é', 'e'),
         'í', 'i'),
       'ó', 'o'),
-    'ú', 'u');
+    'ú', 'u').replace(/[^\w]/g, '');
 };
 
 var normalize = (word) => {
-  return removeTild(singularize(word.toLowerCase()));
+  return removeTildAndPunctuations(singularize(word.toLowerCase()));
 };
 
 var normalizeAll = (phrase) => {
@@ -308,7 +308,7 @@ var filterCategory = (title, name) => {
   return title.includes(name) || title.includes(name.replace(' ', ''));
 };
 
-var webiseQuery = (query) => query.replace(/ñ/g, '%C3%B1').replace(/Ñ/g, '%C3%B1');
+var webiseQuery = (query) => query.replace(/ñ/g, '%C3%B1').replace(/Ñ/g, '%C3%B1').replace(/%/g, '%25');
 
 var getItemCategoryWords = (categories) => {
   return _.values(categories).map((category) => category.name).reduce((list, name) => {
