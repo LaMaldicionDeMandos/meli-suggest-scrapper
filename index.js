@@ -4,9 +4,9 @@ var Promise = require('bluebird');
 var Byline = require('readline-stream');
 var fs = require('fs');
 var _ = require('lodash');
-var es = require('elasticsearch');
-var esClient = new es.Client({host: 'localhost:9200', log:'info'});
-var db = new (require('./services/storage'))(esClient);
+//var es = require('elasticsearch');
+//var esClient = new es.Client({host: 'localhost:9200', log:'info'});
+//var db = new (require('./services/storage'))(esClient);
 
 var log1 = fs.createWriteStream('./public/results.1.txt', {flags: 'a'});
 var report1 = fs.createWriteStream('./public/reports.1.txt', {flags: 'a'});
