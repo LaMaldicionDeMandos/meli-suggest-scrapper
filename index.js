@@ -38,8 +38,6 @@ var report9 = fs.createWriteStream('./public/reports.9.txt', {flags: 'a'});
 var log10 = fs.createWriteStream('./public/results.10.txt', {flags: 'a'});
 var report10 = fs.createWriteStream('./public/reports.10.txt', {flags: 'a'});
 
-var itemsFile = fs.createWriteStream('./public/items.json', {flags: 'a'});
-
 function writeLine(s) {
   this.write(s + '\n');
 }
@@ -278,9 +276,35 @@ var singularizeAll = (phrase) => {
 
 };
 
+var changecharTo = (word, from, to) => {
+  return word.replace(from, to, 'g');
+}
+
+var removeTild = (word) => {
+  return changecharTo(
+    changecharTo(
+      changecharTo(
+        changecharTo(
+          changecharTo(word, 'á', 'a'),
+          'é', 'e'),
+        'í', 'i'),
+      'ó', 'o'),
+    'ú', 'u');
+};
+
+var normalize = (word) => {
+  return removeTild(singularize(word.toLowerCase()));
+};
+
+var normalizeAll = (phrase) => {
+  var words = phrase.split(' ')
+    .map(normalize);
+  return _.join(words, ' ');
+}
+
 var filterCategory = (title, name) => {
-  title = singularizeAll(title).toLowerCase();
-  name = singularizeAll(name).toLowerCase();
+  title = normalizeAll(title);
+  name = normalizeAll(name);
   return title.includes(name) || title.includes(name.replace(' ', ''));
 };
 
@@ -290,8 +314,7 @@ var getItemCategoryWords = (categories) => {
   return _.values(categories).map((category) => category.name).reduce((list, name) => {
     return list.concat(name.split(' '));
   }, [])
-    .map((word) => word.toLowerCase())
-    .map(singularize);
+    .map(normalize);
 }
 
 app.post('/load', (req, res) => {
@@ -361,7 +384,10 @@ app.post('/load2', (req, res) => {
         })
         .thenReturn(item);
     })
-    .then((items) => itemsFile.write(JSON.stringify(items)))
+    .then((items) => {
+      var itemsFileToUpdate = fs.createWriteStream('./public/items.json');
+      itemsFileToUpdate.write(JSON.stringify(items))
+    })
     .then(() => res.send(items))
     .catch((err) => res.status(400).send(err));
 });
@@ -405,7 +431,6 @@ app.get('/query2', (req, res) => {
       var matches = [];
       var percent = .7;
       var percentItem = .2;
-      //var phrase = singularizeAll(query.toLowerCase()).split(' ');
       var categories = _.values(item.categories)
         .filter((category) => /*category.first ||*/ category.cant > item.total*percent);
       return getItems()
@@ -416,11 +441,16 @@ app.get('/query2', (req, res) => {
           console.log(`items luego de categories: ${JSON.stringify(items.map((item) => item.title))}`);
           return items;
         })
-        .filter((item) => {
-          var phrase = singularizeAll(query.toLowerCase()).split(' ');
-          var words = getItemCategoryWords(item.categories);
-          phrase = phrase.filter((word) => !words.includes(word))
-          return phrase.every((word) => item.title.toLowerCase().indexOf(word) >= 0);
+        .then((items) => {
+          var phrase = normalizeAll(query).split(' ');
+          //Elimino las palabras que hacen que el filtro colapse
+          phrase = phrase.filter((word) => items.some((item) => normalizeAll(item.title).indexOf(word) >= 0));
+          return items.filter((item) => {
+            var c = _.clone(phrase);
+            var words = getItemCategoryWords(item.categories);
+            c = c.filter((word) => !words.includes(word));
+            return c.every((word) => normalizeAll(item.title).indexOf(word) >= 0);
+          })
         })
         .then((items) => {
           console.log(`items luego de filtro: ${JSON.stringify(items.map((item) => item.title.toLowerCase()))}`);
