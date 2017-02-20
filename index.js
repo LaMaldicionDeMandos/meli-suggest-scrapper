@@ -341,8 +341,8 @@ const categoryCache = {};
 app.post('/load2', (req, res) => {
   var items = [];
   var index = 0;
-  db.clean();
-  request("https://wolla.herokuapp.com/api/items/active").auth(null, null, true, 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3dvbGxhLmF1dGgwLmNvbS8iLCJzdWIiOiJvYXV0aDJ8TWVMaXwyNDI4ODM4NzIiLCJhdWQiOiI5cjM5QkJZamNLbjZ3ejE2TnNON3gyT0I1dk9td2pWRiIsImV4cCI6MTQ4OTg0OTYxNSwiaWF0IjoxNDg3MjU3NjE1fQ.k9ASMI_yfC1Bw1oKjBE5X4CNy69QxuhmTIF3cOEsYQM')
+  //db.clean();
+  request("https://wolla.herokuapp.com/api/items/active").auth(null, null, true, 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3dvbGxhLmF1dGgwLmNvbS8iLCJzdWIiOiJvYXV0aDJ8TWVMaXwyNDI0NTQzNTAiLCJhdWQiOiI5cjM5QkJZamNLbjZ3ejE2TnNON3gyT0I1dk9td2pWRiIsImV4cCI6MTQ5MDIwMDQ3NywiaWF0IjoxNDg3NjA4NDc3fQ.ZhQ5-W7rf9KRyUZyLzxosFbo6dp9YfvSZUptvKBBv4I')
     .then(JSON.parse)
     .map((item) => item.title)
     .map((title) => {
