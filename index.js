@@ -431,8 +431,9 @@ app.get('/query2', (req, res) => {
       var matches = [];
       var percent = .7;
       var percentItem = .2;
+      var phrase = normalizeAll(query).split(' ');
       var categories = _.values(item.categories)
-        .filter((category) => /*category.first ||*/ category.cant > item.total*percent);
+        .filter((category) => phrase.includes(normalizeAll(category.name)) || category.cant > item.total*percent);
       return getItems()
         .filter((item) => categories.every((category) => _.values(item.categories)
             .filter((cat) => cat.cant > item.total*percentItem)
